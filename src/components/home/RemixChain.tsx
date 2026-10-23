@@ -1,0 +1,83 @@
+import { Link } from "react-router-dom";
+import { ArrowRight, GitBranch, Plus } from "lucide-react";
+import { SectionHead } from "@/components/ui/primitives";
+import { Cover } from "@/components/work/Cover";
+import { creatorMap, workMap } from "@/data/seed";
+import { WORK_TYPE_CONFIG } from "@/data/config";
+import { workLink } from "@/lib/work";
+
+const CHAIN = ["w-g-2", "w-d-4", "w-n-3"];
+
+export function RemixChain() {
+  const nodes = CHAIN.map((id) => workMap.get(id)).filter(
+    (work): work is NonNullable<typeof work> => Boolean(work),
+  );
+
+  return (
+    <section className="section section--remix" aria-labelledby="remix-title">
+      <SectionHead
+        num="04"
+        title="接力创作"
+        desc="谁启发了谁，谁把故事往下接了。血缘公开，二创必须署名。"
+        action={
+          <Link className="arrow-link" to="/topics/%E5%8D%81%E4%B8%89%E6%A5%BC%E5%AE%87%E5%AE%99">
+            看完整血缘
+            <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+        }
+      />
+      <div className="remix-panel">
+        <div className="remix-panel__head">
+          <div>
+            <span className="eyebrow">CASE FILE / 十三楼宇宙</span>
+            <h3>从一款游戏，长成一部短剧和一本小说</h3>
+          </div>
+          <p>
+            鹿鸣先做了《电梯只到 13 楼》，然后把 13 楼的邻居写进短剧，最后让纸人有了自己的小说。
+            三件作品不是续集，是同一个世界观的三种打开方式。
+          </p>
+        </div>
+
+        <div className="remix-chain">
+          <span className="remix-chain__label" aria-hidden="true">
+            <GitBranch size={14} />
+            血缘链
+          </span>
+          {nodes.map((work, index) => {
+            const config = WORK_TYPE_CONFIG[work.type];
+            const author = creatorMap.get(work.authorHandle);
+            return (
+              <div className="remix-step" key={work.id}>
+                {index > 0 ? (
+                  <span className="remix-arrow" aria-hidden="true">
+                    <span>二创</span>
+                    <ArrowRight size={18} />
+                  </span>
+                ) : null}
+                <Link className="remix-node" to={workLink(work)}>
+                  <span className="remix-node__label">{String.fromCharCode(65 + index)}</span>
+                  <span className="remix-node__cover">
+                    <Cover cover={work.cover} />
+                  </span>
+                  <strong>{work.title}</strong>
+                  <small>
+                    {config.label} · {author?.name}
+                  </small>
+                </Link>
+              </div>
+            );
+          })}
+          <span className="remix-arrow remix-arrow--ghost" aria-hidden="true">
+            <span>下一棒</span>
+            <ArrowRight size={18} />
+          </span>
+          <Link className="remix-add" to="/create">
+            <Plus size={20} aria-hidden="true" />
+            <strong>加入接力</strong>
+            <small>从一个已授权的世界观开始</small>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

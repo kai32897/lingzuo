@@ -1,0 +1,25 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+const errs = [];
+p.on("pageerror", (e) => errs.push(e.message));
+await p.goto("http://127.0.0.1:5173/games/bianlidian-yeban", { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 400));
+await p.evaluate(() => document.querySelector("#comments")?.scrollIntoView());
+await p.type(".comment-form textarea", "这条评论会被编辑一次。");
+await p.click(".comment-form .btn--primary");
+await new Promise((r) => setTimeout(r, 400));
+await p.click(".comment__edit-btn");
+await new Promise((r) => setTimeout(r, 200));
+const textarea = await p.$(".comment__edit textarea");
+await textarea.evaluate((el) => (el.value = ""));
+await textarea.type("这条评论已经被编辑。");
+await p.click(".comment__edit-actions .btn--primary");
+await new Promise((r) => setTimeout(r, 400));
+console.log(await p.evaluate(() => {
+  const c = JSON.parse(localStorage.getItem("lz:comments") || "[]")[0];
+  return { content: c?.content, hasUpdatedAt: Boolean(c?.updatedAt), editedLabel: document.body.textContent?.includes("已编辑") };
+}));
+console.log("errors", errs);
+await b.close();

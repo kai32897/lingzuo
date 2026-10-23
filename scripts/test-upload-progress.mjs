@@ -1,0 +1,23 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+const errs = [];
+p.on("pageerror", (e) => errs.push(e.message));
+await p.goto("http://127.0.0.1:5173/create/drama", { waitUntil: "networkidle0" });
+const sizes = await p.$$eval(".media-size-options button", (n) => n.map((x) => x.textContent));
+console.log("sizes", sizes.length);
+await p.evaluate(() => {
+  [...document.querySelectorAll(".media-size-options button")].find((b) => b.textContent?.includes("1:1"))?.click();
+  [...document.querySelectorAll(".media-crop-options button")].find((b) => b.textContent?.includes("偏上"))?.click();
+});
+const inputs = await p.$$("input[type=file]");
+await inputs[0].uploadFile("F:\\网站项目\\灵作\\.shots\\test-cover.png");
+await new Promise((r) => setTimeout(r, 900));
+await inputs[1].uploadFile("F:\\网站项目\\灵作\\.shots\\test-drama.webm");
+await new Promise((r) => setTimeout(r, 900));
+console.log("video preview", await p.$$eval(".media-upload__video", (n) => n.length));
+console.log("progress bar", await p.$$eval(".media-progress", (n) => n.length));
+await p.screenshot({ path: ".shots/upload-progress-crop.png" });
+console.log("errors", errs);
+await b.close();

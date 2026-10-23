@@ -1,0 +1,306 @@
+/* ================= themes ================= */
+
+html[data-theme="night"] {
+  --paper: #141210;
+  --paper-2: #1b1815;
+  --paper-3: #24201b;
+  --white: #211e1a;
+  --ink: #f4f0e6;
+  --ink-soft: #d7d0c3;
+  --muted: #a79e90;
+  --line: #3b352d;
+  --line-soft: rgba(244, 240, 230, 0.14);
+  --blue: #93a1ff;
+  --game: #c8f05a;
+  --drama: #ff7c61;
+  --novel: #cbbdff;
+  --tutorial: #ffd36a;
+  --tool: #9be7ff;
+  --post: #ffc2da;
+  --dark: #0b0a09;
+  --red: #ff6b55;
+  --shadow-hard: 4px 4px 0 rgba(0, 0, 0, 0.55);
+  --shadow-panel: 6px 6px 0 rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="mint"] {
+  --paper: #eaf6ef;
+  --paper-2: #dff1e7;
+  --paper-3: #d2e9dc;
+  --white: #f8fffb;
+  --ink: #102a20;
+  --ink-soft: #365347;
+  --muted: #5d786b;
+  --line: #b9d7c5;
+  --line-soft: rgba(16, 42, 32, 0.12);
+  --blue: #0f6b52;
+  --game: #b7e85a;
+  --drama: #ff7059;
+  --novel: #b7a6ff;
+  --tutorial: #ffce55;
+  --tool: #8fe3ff;
+  --post: #ffc9e0;
+  --dark: #0b241b;
+  --red: #c43b2a;
+}
+
+html[data-theme="white"] {
+  --paper: #ffffff;
+  --paper-2: #f7f7f4;
+  --paper-3: #eeeeea;
+  --white: #ffffff;
+  --ink: #111111;
+  --ink-soft: #55524d;
+  --muted: #77736c;
+  --line: #ddddda;
+  --line-soft: rgba(17, 17, 17, 0.12);
+  --blue: #2457ff;
+  --game: #d8ff3e;
+  --drama: #ff5a3c;
+  --novel: #b9a6ff;
+  --tutorial: #ffc24b;
+  --tool: #8fe3ff;
+  --post: #ffd6e7;
+  --dark: #0d0d0c;
+  --red: #d8341c;
+}
+
+html[data-theme="night"] body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+html[data-theme="white"] body {
+  background: #ffffff;
+}
+
+html[data-theme="white"] .site-header {
+  background: #ffffff;
+}
+
+html[data-theme="white"] .work-card,
+html[data-theme="white"] .form-section,
+html[data-theme="white"] .detail-section,
+html[data-theme="white"] .settings-section {
+  background: #ffffff;
+}
+
+html[data-theme="white"] .theme-option {
+  background: #ffffff;
+}
+
+html[data-theme="night"] .site-header {
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+}
+
+html[data-theme="night"] .site-footer {
+  background: #0b0a09;
+  color: var(--paper);
+}
+
+html[data-theme="night"] .search-box,
+html[data-theme="night"] .global-search input {
+  background: var(--white);
+}
+
+html[data-theme="night"] .btn--primary {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+html[data-theme="night"] .btn--primary:hover {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #0b0a09;
+}
+
+html[data-theme="night"] .work-card:hover,
+html[data-theme="night"] .create-type-card:hover,
+html[data-theme="night"] .create-hero__note,
+html[data-theme="night"] .profile-avatar {
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.55);
+}
+
+html[data-theme="night"] .cover__code,
+html[data-theme="night"] .cover__mark {
+  opacity: 0.9;
+}
+
+html[data-theme="night"] ::selection {
+  background: var(--blue);
+  color: #0b0a09;
+}
+
+html[data-theme="night"] .modal,
+html[data-theme="night"] .share-sheet,
+html[data-theme="night"] .search-panel,
+html[data-theme="night"] .mobile-menu,
+html[data-theme="night"] .header-dropdown {
+  background: var(--white);
+  color: var(--ink);
+}
+
+html[data-theme="night"] .form-field input,
+html[data-theme="night"] .form-field textarea,
+html[data-theme="night"] .form-field select {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ================= style switcher ================= */
+
+.route-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52vh;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.route-loading__mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--game);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 16px;
+  animation: route-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes route-pulse {
+  from { transform: scale(0.92); }
+  to { transform: scale(1.05); }
+}
+
+.theme-switcher {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  background: var(--white);
+  text-align: left;
+  transition: border-color 160ms var(--ease), transform 160ms var(--ease);
+}
+
+.theme-option:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.theme-option.is-active {
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.theme-option__swatches {
+  display: flex;
+  gap: 2px;
+}
+
+.theme-option__swatches > span {
+  width: 20px;
+  height: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 2px;
+}
+
+.theme-option__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.theme-option__copy strong {
+  font-size: 11px;
+}
+
+.theme-option__copy small {
+  font-size: 8.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.theme-switcher--compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.theme-switcher--compact .theme-option {
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  border-color: var(--line);
+  background: transparent;
+}
+
+.theme-switcher--compact .theme-option.is-active {
+  box-shadow: none;
+  background: var(--white);
+}
+
+.theme-switcher--compact .theme-option__swatches > span {
+  width: 12px;
+  height: 10px;
+}
+
+.theme-switcher--compact .theme-option__copy strong {
+  font-size: 8px;
+}
+
+.site-footer .theme-switcher--compact .theme-option {
+  border-color: rgba(244, 240, 230, 0.2);
+  color: var(--paper);
+}
+
+.site-footer .theme-switcher--compact .theme-option.is-active {
+  border-color: var(--paper);
+  background: rgba(244, 240, 230, 0.1);
+}
+
+.site-footer .theme-switcher--compact .theme-option__copy strong {
+  color: var(--paper);
+}
+
+.site-footer .theme-switcher--compact {
+  margin-top: 10px;
+}
+
+/* dark header style button */
+
+.header-style {
+  flex: none;
+}
+
+@media (max-width: 760px) {
+  .header-style {
+    display: none;
+  }
+
+  .theme-switcher {
+    grid-template-columns: 1fr;
+  }
+
+  .theme-option {
+    flex-direction: row;
+    align-items: center;
+  }
+}

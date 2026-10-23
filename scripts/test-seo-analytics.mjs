@@ -1,0 +1,12 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.goto("http://127.0.0.1:5173/games/bianlidian-yeban", { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 500));
+console.log("og", await p.$eval('meta[property="og:image"]', (n) => n.content));
+console.log("canonical", await p.$eval('link[rel="canonical"]', (n) => n.href));
+console.log("events", await p.evaluate(() => JSON.parse(localStorage.getItem("lz:analytics") || "[]").length));
+await p.goto("http://127.0.0.1:5173/search?q=AI", { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 800));
+console.log("events after search", await p.evaluate(() => JSON.parse(localStorage.getItem("lz:analytics") || "[]").map((e) => e.event)));
+await b.close();

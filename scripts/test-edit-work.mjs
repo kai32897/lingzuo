@@ -1,0 +1,55 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+const errs = [];
+p.on("pageerror", (e) => errs.push(e.message));
+const setField = async (selector, index, value) => {
+  await p.evaluate(({ selector, index, value }) => {
+    const el = document.querySelectorAll(selector)[index];
+    const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(proto, "value").set.call(el, value);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }, { selector, index, value });
+};
+const click = async (text) => {
+  await p.evaluate((needle) => {
+    [...document.querySelectorAll("button, a")].find((b) => b.textContent?.includes(needle) && !b.disabled)?.click();
+  }, text);
+  await new Promise((r) => setTimeout(r, 350));
+};
+await p.goto("http://127.0.0.1:5173/create/novel", { waitUntil: "networkidle0" });
+await setField(".form-field input", 0, "编辑功能测试");
+await setField(".form-field textarea", 0, "验证发布后的作品可以再次编辑，并且不会新建一件。");
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 400));
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 400));
+await p.click(".rights-check input");
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 600));
+const before = await p.evaluate(() => JSON.parse(localStorage.getItem("lz:published-works") || "[]")[0]);
+console.log("before", { id: before.id, slug: before.slug, title: before.title, count: await p.evaluate(() => JSON.parse(localStorage.getItem("lz:published-works") || "[]").length) });
+await p.goto(`http://127.0.0.1:5173/novels/${before.slug}`, { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 500));
+console.log("edit links", await p.$$eval("a", (n) => n.map((x) => x.textContent?.trim()).filter((x) => x === "编辑作品")));
+await click("编辑作品");
+await new Promise((r) => setTimeout(r, 500));
+console.log("editor edit url", p.url());
+console.log("topbar", await p.$eval(".editor-title .eyebrow", (n) => n.textContent?.trim()));
+console.log("rights boxes", await p.$$eval(".rights-check input", (n) => n.map((x) => x.checked)));
+await setField(".form-field input", 0, "编辑功能测试（已改）");
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 400));
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 400));
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 600));
+const after = await p.evaluate(() => JSON.parse(localStorage.getItem("lz:published-works") || "[]"));
+console.log("after", { count: after.length, id: after[0].id, slug: after[0].slug, title: after[0].title, createdAtSame: after[0].createdAt === before.createdAt });
+console.log("success", await p.$eval(".create-success h1", (n) => n.textContent?.trim()));
+await p.goto(`http://127.0.0.1:5173/novels/${after[0].slug}`, { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 500));
+console.log("detail title", await p.$eval(".work-title", (n) => n.textContent?.trim()).catch(() => "no selector"));
+console.log("errors", errs);
+await b.close();

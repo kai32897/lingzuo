@@ -1,0 +1,10 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.goto("http://127.0.0.1:4173/recipes", { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 1500));
+console.log("cards", await p.$$eval(".recipe-card", (n) => n.length));
+console.log("sw", await p.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length));
+console.log("manifest", await p.$$eval('link[rel="manifest"]', (n) => n.length));
+console.log("title", await p.title());
+await b.close();

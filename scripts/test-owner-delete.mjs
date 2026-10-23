@@ -1,0 +1,48 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+const errs = [];
+p.on("pageerror", (e) => errs.push(e.message));
+const setField = async (selector, index, value) => {
+  await p.evaluate(({ selector, index, value }) => {
+    const el = document.querySelectorAll(selector)[index];
+    const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+    Object.getOwnPropertyDescriptor(proto, "value").set.call(el, value);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }, { selector, index, value });
+};
+await p.goto("http://127.0.0.1:5173/create/novel", { waitUntil: "networkidle0" });
+await setField(".form-field input", 0, "删除体验测试");
+await setField(".form-field textarea", 0, "验证大号删除按钮和确认弹窗。");
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 300));
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 300));
+await p.click(".rights-check input");
+await p.click(".editor-nav .btn--primary");
+await new Promise((r) => setTimeout(r, 600));
+const work = await p.evaluate(() => JSON.parse(localStorage.getItem("lz:published-works") || "[]")[0]);
+await p.goto(`http://127.0.0.1:5173/novels/${work.slug}`, { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 500));
+console.log("owner panel", await p.$eval(".owner-panel h2", (n) => n.textContent?.trim()));
+const box = await p.$eval(".owner-panel .btn--danger", (n) => {
+  const r = n.getBoundingClientRect();
+  return { w: Math.round(r.width), h: Math.round(r.height), text: n.textContent?.trim() };
+});
+console.log("delete button", box);
+await p.screenshot({ path: ".shots/owner-delete-panel.png" });
+await p.click(".owner-panel .btn--danger");
+await new Promise((r) => setTimeout(r, 300));
+console.log("dialog", await p.$eval(".confirm-dialog h2", (n) => n.textContent?.trim()));
+await p.screenshot({ path: ".shots/confirm-delete-dialog.png" });
+await p.click(".confirm-dialog .btn--outline");
+await new Promise((r) => setTimeout(r, 200));
+console.log("closed", (await p.$$(".confirm-dialog")).length);
+await p.click(".owner-panel .btn--danger");
+await new Promise((r) => setTimeout(r, 200));
+await p.click(".confirm-dialog .btn--danger");
+await new Promise((r) => setTimeout(r, 600));
+console.log("after", { url: p.url(), works: await p.evaluate(() => JSON.parse(localStorage.getItem("lz:published-works") || "[]").length) });
+console.log("errors", errs);
+await b.close();
