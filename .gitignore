@@ -11,3 +11,6 @@ lingzuo-dist.zip
 .netlify
 .netlify-token
 lingzuo-dist.zip
+
+.github-token
+.supabase.env

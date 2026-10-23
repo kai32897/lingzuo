@@ -6,6 +6,7 @@ import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { SearchProvider } from "@/components/search/SearchProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import { AppErrorBoundary } from "@/components/ui/AppErrorBoundary";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { HomePage } from "@/pages/HomePage";
 import { SITE } from "@/data/config";
 import { creatorMap, postMap, toolMap, workBySlug } from "@/data/seed";
@@ -26,6 +27,8 @@ const NotificationsPage = lazy(() => import("@/pages/NotificationsPage").then((m
 const SettingsPage = lazy(() => import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })));
 const TrashPage = lazy(() => import("@/pages/TrashPage").then((m) => ({ default: m.TrashPage })));
 const WorkVersionsPage = lazy(() => import("@/pages/WorkVersionsPage").then((m) => ({ default: m.WorkVersionsPage })));
+const LoginPage = lazy(() => import("@/pages/AuthPages").then((m) => ({ default: m.LoginPage })));
+const SignupPage = lazy(() => import("@/pages/AuthPages").then((m) => ({ default: m.SignupPage })));
 const AboutPage = lazy(() => import("@/pages/StaticPages").then((m) => ({ default: m.AboutPage })));
 const GuidelinesPage = lazy(() => import("@/pages/StaticPages").then((m) => ({ default: m.GuidelinesPage })));
 const AiPolicyPage = lazy(() => import("@/pages/StaticPages").then((m) => ({ default: m.AiPolicyPage })));
@@ -219,6 +222,8 @@ function AppShell() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/trash" element={<TrashPage />} />
             <Route path="/works/:id/versions" element={<WorkVersionsPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
 
             <Route path="/about" element={<AboutPage />} />
             <Route path="/guidelines" element={<GuidelinesPage />} />
@@ -239,13 +244,15 @@ function AppShell() {
 export default function App() {
   return (
     <BrowserRouter>
-      <ToastProvider>
-        <SearchProvider>
-          <AppErrorBoundary>
-            <AppShell />
-          </AppErrorBoundary>
-        </SearchProvider>
-      </ToastProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <SearchProvider>
+            <AppErrorBoundary>
+              <AppShell />
+            </AppErrorBoundary>
+          </SearchProvider>
+        </ToastProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

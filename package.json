@@ -8,9 +8,11 @@
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "tsc --noEmit && vite build && node scripts/prerender-seed.mjs",
     "og": "node scripts/generate-og.mjs",
+    "supabase:setup": "node scripts/setup-supabase.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4173"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "lucide-react": "^0.545.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -21,6 +23,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "pg": "^8.23.1",
     "puppeteer-core": "^25.15.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.9"

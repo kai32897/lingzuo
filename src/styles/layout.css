@@ -1039,3 +1039,17 @@
     display: none;
   }
 }
+
+.header-login {
+  flex: none;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 9px;
+}
+
+@media (max-width: 700px) {
+  .header-login {
+    padding: 0 8px;
+    font-size: 0;
+  }
+}

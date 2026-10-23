@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Bell, Menu, Palette, Plus, Search, X } from "lucide-react";
+import { Bell, LogIn, Menu, Palette, Plus, Search, X } from "lucide-react";
 import { Avatar } from "@/components/ui/primitives";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { GlobalSearchBox } from "@/components/search/GlobalSearchBox";
 import { useSearch } from "@/components/search/SearchProvider";
 import { CURRENT_USER, PRIMARY_NAV, SITE } from "@/data/config";
-import { currentAvatarText, currentName } from "@/lib/currentUser";
 import { THEMES, useTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
   const location = useLocation();
   const { openSearch } = useSearch();
+  const { user, profile } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const currentTheme = THEMES.find((item) => item.id === theme) ?? THEMES[0];
@@ -73,14 +74,21 @@ export function SiteHeader() {
             <Plus size={16} strokeWidth={2.5} aria-hidden="true" />
             发布作品
           </Link>
-          <Link className="header-avatar" to="/me" aria-label={`${currentName()} 的账户`}>
-            <Avatar
-              name={currentName()}
-              text={currentAvatarText()}
-              color={CURRENT_USER.avatarColor}
-              size="sm"
-            />
-          </Link>
+          {user ? (
+            <Link className="header-avatar" to="/me" aria-label={`${profile?.name ?? "我的"} 的账户`}>
+              <Avatar
+                name={profile?.name ?? "我"}
+                text={(profile?.name ?? "我").slice(0, 1)}
+                color={CURRENT_USER.avatarColor}
+                size="sm"
+              />
+            </Link>
+          ) : (
+            <Link className="btn btn--outline btn--sm header-login" to="/login">
+              <LogIn size={14} />
+              登录
+            </Link>
+          )}
           <button
             type="button"
             className={cn("icon-btn nav-toggle", menuOpen && "is-active")}

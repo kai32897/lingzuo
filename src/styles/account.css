@@ -2078,3 +2078,239 @@
     white-space: normal;
   }
 }
+
+/* ================= auth ================= */
+
+.auth-page {
+  min-height: calc(100vh - var(--header-h));
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+  background: var(--paper);
+}
+
+.auth-card {
+  width: min(560px, 100%);
+  margin: auto;
+  padding: 54px var(--gutter) 72px;
+}
+
+.auth-back {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 34px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.auth-back:hover {
+  color: var(--ink);
+}
+
+.auth-card h1 {
+  margin: 8px 0 26px;
+  font-family: var(--font-display);
+  font-size: clamp(48px, 6vw, 82px);
+  line-height: .92;
+  letter-spacing: -0.045em;
+}
+
+.auth-form {
+  display: grid;
+  gap: 15px;
+}
+
+.auth-form > label > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.auth-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 7px;
+  background: var(--white);
+  color: var(--muted);
+}
+
+.auth-input:focus-within {
+  border-color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.auth-input input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  outline: 0;
+}
+
+.auth-input button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--muted);
+}
+
+.auth-prefix {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.auth-hint {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1.6;
+}
+
+.auth-hint.is-error,
+.auth-error {
+  color: var(--red);
+}
+
+.auth-error {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--red) 40%, var(--line));
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--red) 7%, var(--white));
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.auth-submit {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 4px;
+  justify-content: center;
+}
+
+.auth-switch {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.auth-switch a {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-warning {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px dashed var(--tutorial);
+  background: color-mix(in srgb, var(--tutorial) 18%, var(--white));
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.auth-rights {
+  align-items: flex-start;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.auth-copy {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.auth-copy strong {
+  color: var(--ink);
+}
+
+.auth-done {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 20px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--game);
+  color: var(--ink);
+  font-size: 11px;
+}
+
+.auth-aside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100%;
+  padding: 48px;
+  overflow: hidden;
+  background: var(--dark);
+  color: var(--paper);
+}
+
+.auth-aside::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 25% 18%, rgba(47, 75, 255, .55), transparent 35%),
+    radial-gradient(circle at 75% 70%, rgba(216, 255, 62, .18), transparent 40%);
+}
+
+.auth-aside__mark {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-size: clamp(180px, 24vw, 360px);
+  line-height: .72;
+  color: var(--game);
+}
+
+.auth-aside p {
+  position: relative;
+  z-index: 1;
+  margin: 30px 0 8px;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 42px);
+  line-height: 1.05;
+}
+
+.auth-aside small {
+  position: relative;
+  z-index: 1;
+  color: rgba(244, 240, 230, .45);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 820px) {
+  .auth-page {
+    display: block;
+  }
+
+  .auth-aside {
+    display: none;
+  }
+
+  .auth-card {
+    padding-top: 34px;
+  }
+}
