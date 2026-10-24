@@ -9,6 +9,9 @@ import { workLink } from "@/lib/work";
 export function Hero() {
   const featured = works.find((work) => work.type === "drama") ?? works[0];
   const config = featured ? WORK_TYPE_CONFIG[featured.type] : undefined;
+  const realCreators = creators.filter((creator) =>
+    works.some((work) => work.authorHandle === creator.handle),
+  );
 
   const meta = !featured
     ? ""
@@ -51,7 +54,7 @@ export function Hero() {
           </div>
           <div className="hero__meta">
             <div className="hero__avatars" aria-hidden="true">
-              {creators.slice(0, 4).map((creator) => (
+              {realCreators.slice(0, 4).map((creator) => (
                 <Avatar
                   key={creator.handle}
                   name={creator.name}
@@ -60,10 +63,10 @@ export function Hero() {
                   size="xs"
                 />
               ))}
-              <span className="hero__avatar-more">+{creators.length}</span>
+              <span className="hero__avatar-more">+{realCreators.length}</span>
             </div>
             <p>
-              已有 <strong>{works.length}</strong> 件作品，<strong>{creators.length}</strong> 位创作者。
+              已有 <strong>{works.length}</strong> 件作品，<strong>{realCreators.length}</strong> 位创作者。
               <span>不强制登录，先逛再说。</span>
             </p>
           </div>

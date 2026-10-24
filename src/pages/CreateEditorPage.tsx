@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,6 +21,7 @@ import { ShareSheet } from "@/components/detail/ShareSheet";
 import { MediaUpload } from "@/components/media/MediaUpload";
 import { AuthorLine, TypeSticker } from "@/components/ui/primitives";
 import { useToast } from "@/components/ui/Toast";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { CURRENT_USER, WORK_TYPE_CONFIG } from "@/data/config";
 import { challenges, workMap } from "@/data/seed";
 import { NotFoundPage } from "@/pages/NotFoundPage";
@@ -40,6 +41,8 @@ import {
   type NovelChapterDraft,
   type TutorialBlockDraft,
 } from "@/lib/userContent";
+import { publishRemoteWork } from "@/lib/remoteContent";
+import { supabase } from "@/lib/supabase";
 import { workLink } from "@/lib/work";
 import type { ContentType, Work } from "@/types";
 
@@ -51,13 +54,17 @@ function isContentType(value: string | undefined): value is ContentType {
 
 export function CreateEditorPage() {
   const { type } = useParams();
+  const { user, loading, configured } = useAuth();
   if (!isContentType(type)) return <NotFoundPage />;
+  if (loading) return <div className="account-loading">正在确认登录状态…</div>;
+  if (configured && !user) return <Navigate to="/login" replace />;
   return <Editor type={type} />;
 }
 
 function Editor({ type }: { type: ContentType }) {
   const config = WORK_TYPE_CONFIG[type];
   const { toast } = useToast();
+  const { user, profile } = useAuth();
   const [searchParams] = useSearchParams();
   const draft = useMemo(() => loadDraft(type), [type]);
   const editId = searchParams.get("edit");
@@ -253,18 +260,31 @@ function Editor({ type }: { type: ContentType }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const publish = () => {
+  const publish = async () => {
     if (publishIssues.length) {
       toast({ title: "还不能发布", desc: publishIssues[0] });
       return;
     }
-    const work = publishWork(form, isEditing ? editing?.id : undefined);
+    let work: Work;
+    try {
+      work =
+        supabase && user && profile
+          ? await publishRemoteWork(form, profile, isEditing ? editing?.id : undefined)
+          : publishWork(form, isEditing ? editing?.id : undefined);
+    } catch (error) {
+      toast({
+        title: "发布失败",
+        desc: error instanceof Error ? error.message : "请稍后重试。",
+        tone: "ink",
+      });
+      return;
+    }
     track(isEditing ? "work_update" : "work_publish", { type: work.type, id: work.id });
     setPublished(work);
     window.scrollTo({ top: 0, behavior: "smooth" });
     toast({
       title: isEditing ? "修改已保存" : "发布成功",
-      desc: isEditing ? "作品详情、搜索和主页已同步更新。" : "作品已进入首页「今日上新」和你的个人主页。",
+      desc: user ? "作品已写入 Supabase，其他访客也能看到。" : "作品已进入首页「今日上新」和你的个人主页。",
       tone: "game",
     });
   };
@@ -969,7 +989,7 @@ function Editor({ type }: { type: ContentType }) {
                   <span>{form.aiDisclosure || "AI 声明待选择"}</span>
                 </div>
                 <div className="editor-preview__by">
-                  <AuthorLine handle={CURRENT_USER.handle} size="xs" />
+                  <AuthorLine handle={profile?.handle ?? CURRENT_USER.handle} size="xs" />
                   <span>刚刚</span>
                 </div>
               </div>

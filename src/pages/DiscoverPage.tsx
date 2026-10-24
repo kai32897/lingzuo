@@ -60,6 +60,9 @@ export function DiscoverPage() {
   }, []);
 
   const featuredPosts = [posts[0], posts[4], posts[3]].filter(Boolean);
+  const visibleCreators = creators.filter((creator) =>
+    works.some((work) => work.authorHandle === creator.handle),
+  );
 
   return (
     <div className="discover-page">
@@ -84,7 +87,7 @@ export function DiscoverPage() {
               <div className="discover-hero__meta">
                 <span>{works.length} 件作品</span>
                 <span>{collections.length} 个主题合集</span>
-                <span>{creators.length} 位创作者</span>
+                <span>{visibleCreators.length} 位创作者</span>
               </div>
             </div>
           </div>
@@ -187,7 +190,7 @@ export function DiscoverPage() {
           action={<span className="mono-small">FOLLOW A PERSON</span>}
         />
         <div className="creator-grid">
-          {creators.slice(0, 4).map((creator) => (
+          {visibleCreators.slice(0, 4).map((creator) => (
             <CreatorCard key={creator.handle} creator={creator} />
           ))}
         </div>
