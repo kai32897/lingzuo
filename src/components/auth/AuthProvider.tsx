@@ -80,6 +80,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp: AuthContextValue["signUp"] = async ({ email, password, handle, name }) => {
     if (!supabase) return { error: "Supabase 还没有配置。" };
     const cleanHandle = handle.trim().toLowerCase();
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("handle", cleanHandle)
+      .maybeSingle();
+    if (existing) {
+      return { error: `用户名 @${cleanHandle} 已经被占用，换一个试试。` };
+    }
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,

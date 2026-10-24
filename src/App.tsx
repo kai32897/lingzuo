@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect } from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
@@ -22,7 +22,6 @@ const CreateIndexPage = lazy(() => import("@/pages/CreateIndexPage").then((m) =>
 const CreateEditorPage = lazy(() => import("@/pages/CreateEditorPage").then((m) => ({ default: m.CreateEditorPage })));
 const CreatePostPage = lazy(() => import("@/pages/CreatePostPage").then((m) => ({ default: m.CreatePostPage })));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage").then((m) => ({ default: m.ProfilePage })));
-const MePage = lazy(() => import("@/pages/MePage").then((m) => ({ default: m.MePage })));
 const NotificationsPage = lazy(() => import("@/pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage })));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })));
 const TrashPage = lazy(() => import("@/pages/TrashPage").then((m) => ({ default: m.TrashPage })));
@@ -218,7 +217,7 @@ function AppShell() {
             <Route path="/create/:type" element={<CreateEditorPage />} />
 
             <Route path="/u/:handle" element={<ProfilePage />} />
-            <Route path="/me" element={<MePage />} />
+            <Route path="/me" element={<Navigate to="/account" replace />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/trash" element={<TrashPage />} />
@@ -244,6 +243,12 @@ function AppShell() {
 }
 
 export default function App() {
+  const [, forceRender] = useState(0);
+  useEffect(() => {
+    const onRemoteWorks = () => forceRender((value) => value + 1);
+    window.addEventListener("lz:remote-works", onRemoteWorks);
+    return () => window.removeEventListener("lz:remote-works", onRemoteWorks);
+  }, []);
   return (
     <BrowserRouter>
       <AuthProvider>

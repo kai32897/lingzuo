@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, LogOut, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { WorkCard } from "@/components/work/WorkCard";
+import { works } from "@/data/seed";
 import { useToast } from "@/components/ui/Toast";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { timeAgo } from "@/lib/utils";
@@ -20,6 +22,7 @@ export function AccountPage() {
 
   const name = profile?.name ?? user.email?.split("@")[0] ?? "灵作用户";
   const handle = profile?.handle ?? "";
+  const myWorks = profile ? works.filter((work) => work.authorHandle === profile.handle) : [];
 
   return (
     <div className="account-page">
@@ -87,20 +90,49 @@ export function AccountPage() {
           </section>
 
           <section className="account-card">
-            <span className="eyebrow">NEXT / 下一步</span>
-            <h2>你的主页还差作品。</h2>
-            <p>账号已经可用，但作品发布仍在迁移中。下一步会把发布器接到 Supabase，上传封面和视频，再把演示作品下线。</p>
+            <span className="eyebrow">PUBLISH / 发布</span>
+            <h2>{myWorks.length ? "继续做下一件。" : "你的主页还差作品。"}</h2>
+            <p>作品会直接写入 Supabase，封面和视频上传到 Storage，其他访客刷新后就能看到。</p>
             <div className="account-links">
               <Link className="btn btn--primary btn--sm" to="/create">
-                先看看发布器
+                发布作品
                 <ArrowRight size={14} />
               </Link>
-              <Link className="btn btn--outline btn--sm" to="/me">
-                旧工作台（演示）
-              </Link>
+              {myWorks.length ? (
+                <a className="btn btn--outline btn--sm" href="#account-works">
+                  查看我的作品
+                </a>
+              ) : null}
             </div>
           </section>
         </div>
+
+        <section className="account-works" id="account-works">
+          <div className="account-works__head">
+            <div>
+              <span className="eyebrow">WORKS / 我的作品</span>
+              <h2>{myWorks.length} 件</h2>
+            </div>
+            <Link className="btn btn--outline btn--sm" to="/create">
+              新建作品
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+          {myWorks.length ? (
+            <div className="account-works__grid">
+              {myWorks.map((work) => (
+                <WorkCard key={work.id} work={work} ratio="type" />
+              ))}
+            </div>
+          ) : (
+            <div className="account-works__empty">
+              <p>还没有发布作品。第一件不用很大，能打开就行。</p>
+              <Link className="btn btn--primary btn--sm" to="/create">
+                去发布
+              </Link>
+            </div>
+          )}
+        </section>
 
         <p className="account-foot">
           注册于 {timeAgo(user.created_at)}前 · 这是一个真实账号，不再使用演示用户「林一」。
