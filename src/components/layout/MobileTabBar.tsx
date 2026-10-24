@@ -6,7 +6,7 @@ const tabs = [
   { label: "首页", href: "/", icon: Home, end: true },
   { label: "发现", href: "/discover", icon: Compass, end: false },
   { label: "消息", href: "/notifications", icon: Bell, end: false },
-  { label: "我的", href: "/me", icon: User, end: false },
+  { label: "我的", href: "/account", icon: User, end: false },
 ];
 
 export function MobileTabBar() {

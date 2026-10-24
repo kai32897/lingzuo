@@ -1,22 +1,66 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import { Bell, Info, Lock, Palette, Save, SlidersHorizontal, Sparkles, UserRound } from "lucide-react";
 import { Avatar } from "@/components/ui/primitives";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import { useToast } from "@/components/ui/Toast";
-import { CURRENT_USER } from "@/data/config";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { loadSettings, saveSettings, type UserSettings } from "@/lib/userContent";
+import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
 export function SettingsPage() {
   useDocumentTitle("设置 · 灵作");
   const { toast } = useToast();
+  const { user, profile, loading, refreshProfile } = useAuth();
   const [settings, setSettings] = useState<UserSettings>(() => loadSettings());
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const update = (patch: Partial<UserSettings>) => {
     setSettings((current) => ({ ...current, ...patch }));
     setSaved(false);
+  };
+
+  useEffect(() => {
+    if (!profile) return;
+    setSettings((current) => ({
+      ...current,
+      name: profile.name,
+      bio: profile.bio,
+      location: profile.location,
+      links: profile.links,
+    }));
+  }, [profile]);
+
+  if (loading) return <div className="account-loading">正在读取资料…</div>;
+  if (!user) return <Navigate to="/login" replace />;
+
+  const save = async () => {
+    setSaving(true);
+    let failed = false;
+    if (supabase) {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          name: settings.name.trim(),
+          bio: settings.bio.trim(),
+          location: settings.location.trim(),
+          links: settings.links.trim(),
+        })
+        .eq("id", user.id);
+      if (error) {
+        failed = true;
+        toast({ title: "资料保存失败", desc: error.message, tone: "ink" });
+      }
+    }
+    saveSettings(settings);
+    if (!failed) {
+      await refreshProfile();
+      setSaved(true);
+      toast({ title: "设置已保存", desc: "公开资料已经同步到账号。", tone: "game" });
+    }
+    setSaving(false);
   };
 
   return (
@@ -39,11 +83,11 @@ export function SettingsPage() {
         <div className="settings-main">
           <div className="settings-head">
             <div>
-              <span className="eyebrow">ACCOUNT / {CURRENT_USER.handle}</span>
+              <span className="eyebrow">ACCOUNT / @{profile?.handle ?? "me"}</span>
               <h1>设置</h1>
               <p>改完之后记得保存。资料会显示在公开主页和作品详情里。</p>
             </div>
-            <Link className="text-btn" to="/u/linyi">看公开主页</Link>
+            <Link className="text-btn" to={profile?.handle ? `/u/${profile.handle}` : "/account"}>看公开主页</Link>
           </div>
 
           <section className="settings-section" id="appearance">
@@ -61,10 +105,10 @@ export function SettingsPage() {
               <span>所有人可见</span>
             </div>
             <div className="settings-avatar-row">
-              <Avatar name={settings.name} text={settings.name.slice(0, 1)} color={CURRENT_USER.avatarColor} size="xl" />
+              <Avatar name={settings.name} text={settings.name.slice(0, 1)} color="#2F4BFF" size="xl" />
               <div>
                 <strong>{settings.name}</strong>
-                <span>@{CURRENT_USER.handle}</span>
+                <span>@{profile?.handle ?? "me"}</span>
                 <button
                   type="button"
                   className="text-btn"
@@ -215,18 +259,15 @@ export function SettingsPage() {
             <button
               type="button"
               className="btn btn--primary"
-              onClick={() => {
-                saveSettings(settings);
-                setSaved(true);
-                toast({ title: "设置已保存", desc: "公开主页会使用新的昵称和简介。", tone: "game" });
-              }}
+              disabled={saving}
+              onClick={() => void save()}
             >
               <Save size={15} />
-              保存设置
+              {saving ? "保存中…" : "保存设置"}
             </button>
           </div>
           <p className="settings-foot">
-            演示版不提供账号密码、登录、注销或真实邮件通知。所有资料仅保存在当前浏览器。
+            昵称、简介、所在地和公开链接会同步到 Supabase 账号；推荐偏好和通知开关只保存在这个浏览器。
           </p>
         </div>
       </div>
