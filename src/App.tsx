@@ -29,6 +29,7 @@ const TrashPage = lazy(() => import("@/pages/TrashPage").then((m) => ({ default:
 const WorkVersionsPage = lazy(() => import("@/pages/WorkVersionsPage").then((m) => ({ default: m.WorkVersionsPage })));
 const LoginPage = lazy(() => import("@/pages/AuthPages").then((m) => ({ default: m.LoginPage })));
 const SignupPage = lazy(() => import("@/pages/AuthPages").then((m) => ({ default: m.SignupPage })));
+const AccountPage = lazy(() => import("@/pages/AccountPage").then((m) => ({ default: m.AccountPage })));
 const AboutPage = lazy(() => import("@/pages/StaticPages").then((m) => ({ default: m.AboutPage })));
 const GuidelinesPage = lazy(() => import("@/pages/StaticPages").then((m) => ({ default: m.GuidelinesPage })));
 const AiPolicyPage = lazy(() => import("@/pages/StaticPages").then((m) => ({ default: m.AiPolicyPage })));
@@ -224,6 +225,7 @@ function AppShell() {
             <Route path="/works/:id/versions" element={<WorkVersionsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/account" element={<AccountPage />} />
 
             <Route path="/about" element={<AboutPage />} />
             <Route path="/guidelines" element={<GuidelinesPage />} />

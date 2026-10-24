@@ -75,7 +75,7 @@ export function SiteHeader() {
             发布作品
           </Link>
           {user ? (
-            <Link className="header-avatar" to="/me" aria-label={`${profile?.name ?? "我的"} 的账户`}>
+            <Link className="header-avatar" to="/account" aria-label={`${profile?.name ?? "我的"} 的账号`}>
               <Avatar
                 name={profile?.name ?? "我"}
                 text={(profile?.name ?? "我").slice(0, 1)}

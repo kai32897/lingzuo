@@ -1,0 +1,16 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+await p.goto("http://127.0.0.1:5173/login", { waitUntil: "networkidle0" });
+await p.type('input[type="email"]', "lingzuo134714@maxxspace.com");
+await p.type('input[autocomplete="current-password"]', "LingzuoTest2026!134714");
+console.log("before", await p.$$eval(".auth-submit", (n) => n.map((x) => ({ text: x.textContent?.trim(), disabled: x.disabled }))));
+await p.click(".auth-submit");
+await new Promise((r) => setTimeout(r, 2500));
+console.log("url", p.url());
+console.log("error", await p.$$eval(".auth-error", (n) => n.map((x) => x.textContent)));
+console.log("body", (await p.evaluate(() => document.body.textContent)).slice(0, 300));
+console.log("events", await p.evaluate(() => JSON.parse(localStorage.getItem("lz:analytics") || "[]").slice(-3)));
+await p.screenshot({ path: ".shots/auth-login-debug.png" });
+await b.close();

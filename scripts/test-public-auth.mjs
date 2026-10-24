@@ -1,0 +1,14 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox", "--disable-http2", "--host-resolver-rules=MAP lingzuo-ai.netlify.app 13.215.239.219"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+const errs = [];
+p.on("pageerror", (e) => errs.push(e.message));
+await p.goto("https://lingzuo-ai.netlify.app/signup", { waitUntil: "domcontentloaded", timeout: 60000 });
+await new Promise((r) => setTimeout(r, 1500));
+console.log("h1", await p.$$eval("h1", (n) => n.map((x) => x.textContent?.trim())));
+console.log("warning", await p.$$eval(".auth-warning", (n) => n.length));
+console.log("login", await p.$$eval(".header-login", (n) => n.length));
+console.log("errors", errs);
+await p.screenshot({ path: ".shots/public-signup.png" });
+await b.close();

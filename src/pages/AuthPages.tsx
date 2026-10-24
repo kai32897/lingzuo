@@ -38,7 +38,7 @@ export function LoginPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (user) navigate("/me", { replace: true });
+    if (user) navigate("/account", { replace: true });
   }, [user, navigate]);
 
   const submit = async (event: FormEvent) => {
@@ -52,7 +52,7 @@ export function LoginPage() {
       return;
     }
     toast({ title: "登录成功", desc: "欢迎回到灵作。", tone: "game" });
-    navigate("/me");
+    navigate("/account");
   };
 
   return (
@@ -123,7 +123,7 @@ export function SignupPage() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    if (user) navigate("/me", { replace: true });
+    if (user) navigate("/account", { replace: true });
   }, [user, navigate]);
 
   const handleOk = /^[a-z0-9_]{3,20}$/.test(handle.trim().toLowerCase());
@@ -152,7 +152,7 @@ export function SignupPage() {
       return;
     }
     if (result.needsConfirmation) setDone(true);
-    else navigate("/me");
+    else navigate("/account");
   };
 
   if (done) {
