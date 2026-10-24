@@ -13,6 +13,7 @@ export function ChallengeSection() {
   const topWorks = current.topWorkIds
     .map((id) => workMap.get(id))
     .filter((work): work is NonNullable<typeof work> => Boolean(work));
+  if (!topWorks.length) return null;
 
   return (
     <section className="challenge-band" id="challenge" aria-labelledby="challenge-title">

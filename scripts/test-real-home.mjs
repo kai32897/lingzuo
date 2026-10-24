@@ -1,0 +1,17 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+const errs = [];
+p.on("pageerror", (e) => errs.push(e.message));
+await p.goto("http://127.0.0.1:5173/", { waitUntil: "networkidle0" });
+await new Promise((r) => setTimeout(r, 2500));
+const t = await p.evaluate(() => document.body.textContent);
+console.log("remote", t.includes("真实发布测试"));
+console.log("seed", t.includes("便利店夜班"));
+console.log("heading", await p.$$eval(".hero__title", (n) => n.map((x) => x.textContent?.trim())));
+console.log("heroCard", await p.$$eval(".hero-card h2", (n) => n.map((x) => x.textContent?.trim())));
+console.log("cards", await p.$$eval(".work-card", (n) => n.length));
+console.log("errors", errs);
+await p.screenshot({ path: ".shots/real-home.png" });
+await b.close();

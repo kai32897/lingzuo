@@ -11,19 +11,16 @@ import { Cover } from "@/components/work/Cover";
 import { CollectionCard } from "@/components/cards/CollectionCard";
 import { CreatorCard } from "@/components/cards/CreatorCard";
 import { PostCard } from "@/components/cards/PostCard";
-import { collections, creators, posts, workMap, works } from "@/data/seed";
+import { collections, creators, posts, works } from "@/data/seed";
 import { WORK_TYPE_CONFIG } from "@/data/config";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { workLink } from "@/lib/work";
 
-const CROSS_IDS = ["w-g-2", "w-d-4", "w-n-3"];
-
 export function DiscoverPage() {
   useDocumentTitle("发现 · 灵作");
-  const lead = workMap.get("w-n-1");
-  const sidePicks = [workMap.get("w-d-3"), workMap.get("w-t-4")].filter(
-    (work): work is NonNullable<typeof work> => Boolean(work),
-  );
+  const lead = works[0];
+  const sidePicks = works.slice(1, 3);
+  const crossWorks = works.slice(3, 6);
 
   const trending = useMemo(
     () =>
@@ -42,7 +39,7 @@ export function DiscoverPage() {
         .filter((work) => work.stats.views < 6500)
         .map((work) => ({
           work,
-          rate: (work.stats.saves / work.stats.views) * 100,
+          rate: work.stats.views > 0 ? (work.stats.saves / work.stats.views) * 100 : 0,
         }))
         .sort((a, b) => b.rate - a.rate)
         .slice(0, 3),
@@ -61,10 +58,6 @@ export function DiscoverPage() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 12);
   }, []);
-
-  const crossWorks = CROSS_IDS.map((id) => workMap.get(id)).filter(
-    (work): work is NonNullable<typeof work> => Boolean(work),
-  );
 
   const featuredPosts = [posts[0], posts[4], posts[3]].filter(Boolean);
 
@@ -89,9 +82,9 @@ export function DiscoverPage() {
                 玩完、读完之后，还想再推荐一次的东西。
               </p>
               <div className="discover-hero__meta">
-                <span>7 件编辑私藏</span>
-                <span>3 个主题合集</span>
-                <span>4 位值得关注的创作者</span>
+                <span>{works.length} 件作品</span>
+                <span>{collections.length} 个主题合集</span>
+                <span>{creators.length} 位创作者</span>
               </div>
             </div>
           </div>

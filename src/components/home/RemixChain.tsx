@@ -2,16 +2,13 @@ import { Link } from "react-router-dom";
 import { ArrowRight, GitBranch, Plus } from "lucide-react";
 import { SectionHead } from "@/components/ui/primitives";
 import { Cover } from "@/components/work/Cover";
-import { creatorMap, workMap } from "@/data/seed";
+import { creatorMap, works } from "@/data/seed";
 import { WORK_TYPE_CONFIG } from "@/data/config";
 import { workLink } from "@/lib/work";
 
-const CHAIN = ["w-g-2", "w-d-4", "w-n-3"];
-
 export function RemixChain() {
-  const nodes = CHAIN.map((id) => workMap.get(id)).filter(
-    (work): work is NonNullable<typeof work> => Boolean(work),
-  );
+  const nodes = works.filter((work) => work.remixOf).slice(0, 3);
+  if (nodes.length < 2) return null;
 
   return (
     <section className="section section--remix" aria-labelledby="remix-title">
@@ -20,8 +17,8 @@ export function RemixChain() {
         title="接力创作"
         desc="谁启发了谁，谁把故事往下接了。血缘公开，二创必须署名。"
         action={
-          <Link className="arrow-link" to="/topics/%E5%8D%81%E4%B8%89%E6%A5%BC%E5%AE%87%E5%AE%99">
-            看完整血缘
+          <Link className="arrow-link" to="/discover">
+            去发现更多
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
         }
@@ -29,12 +26,12 @@ export function RemixChain() {
       <div className="remix-panel">
         <div className="remix-panel__head">
           <div>
-            <span className="eyebrow">CASE FILE / 十三楼宇宙</span>
-            <h3>从一款游戏，长成一部短剧和一本小说</h3>
+            <span className="eyebrow">CASE FILE / 二创血缘</span>
+            <h3>从一个世界，长出新的打开方式</h3>
           </div>
           <p>
-            鹿鸣先做了《电梯只到 13 楼》，然后把 13 楼的邻居写进短剧，最后让纸人有了自己的小说。
-            三件作品不是续集，是同一个世界观的三种打开方式。
+            一个作品可以启发另一个作品：游戏变成短剧，短剧长成小说。
+            它们不是续集，是同一个世界观的再次接力。
           </p>
         </div>
 

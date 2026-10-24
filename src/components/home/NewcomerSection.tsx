@@ -1,22 +1,19 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SectionHead } from "@/components/ui/primitives";
-import { workMap } from "@/data/seed";
+import { works } from "@/data/seed";
 import { workLink } from "@/lib/work";
 
-const PICKS = ["w-t-1", "w-t-2", "w-t-3"];
-
 export function NewcomerSection() {
-  const tutorials = PICKS.map((id) => workMap.get(id)).filter(
-    (work): work is NonNullable<typeof work> => Boolean(work),
-  );
+  const tutorials = works.filter((work) => work.type === "tutorial").slice(0, 3);
+  if (!tutorials.length) return null;
 
   return (
     <section className="section section--newcomer" aria-labelledby="newcomer-title">
       <SectionHead
         num="05"
         title="新手 15 分钟"
-        desc="不聊概念，直接交作业。三个短教程，今天就能做出第一件东西。"
+        desc="不聊概念，直接交作业。挑几个短教程，今天就能做出第一件东西。"
         action={
           <Link className="arrow-link" to="/tutorials">
             全部教程
