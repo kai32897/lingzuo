@@ -28,6 +28,7 @@ import { recipeFor } from "@/data/recipes";
 import { getPublishedForm, loadWorkVersions, trashWork } from "@/lib/userContent";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RemoteComments } from "@/components/detail/RemoteComments";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/lib/supabase";
 import type { Comment, Work } from "@/types";
 import { copyText, formatCount, timeAgo } from "@/lib/utils";
@@ -97,13 +98,93 @@ export function WorkBreadcrumb({ work }: { work: Work }) {
 
 export function ActionBar({ work }: { work: Work }) {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [liked, setLiked] = useLocalStorage<string[]>(LS_KEYS.liked, []);
   const [saved, setSaved] = useLocalStorage<string[]>(LS_KEYS.saved, []);
   const [reportOpen, setReportOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const isLiked = liked.includes(work.id);
-  const isSaved = saved.includes(work.id);
+  const [remoteLiked, setRemoteLiked] = useState(false);
+  const [remoteSaved, setRemoteSaved] = useState(false);
+  const [remoteLikes, setRemoteLikes] = useState(work.stats.likes);
+  const [remoteSaves, setRemoteSaves] = useState(work.stats.saves);
+  const remoteId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(work.id);
+  const remoteWork = Boolean(supabase && remoteId);
+
+  useEffect(() => {
+    const client = supabase;
+    if (!client || !remoteWork || !user) return;
+    let alive = true;
+    const load = async () => {
+      const [likeCount, ownLike, ownSave] = await Promise.all([
+        client.from("likes").select("*", { count: "exact", head: true }).eq("work_id", work.id),
+        client.from("likes").select("work_id").eq("work_id", work.id).eq("user_id", user.id).maybeSingle(),
+        client.from("saves").select("work_id").eq("work_id", work.id).eq("user_id", user.id).maybeSingle(),
+      ]);
+      if (!alive) return;
+      if (typeof likeCount.count === "number") setRemoteLikes(likeCount.count);
+      setRemoteLiked(Boolean(ownLike.data));
+      setRemoteSaved(Boolean(ownSave.data));
+    };
+    void load();
+    return () => {
+      alive = false;
+    };
+  }, [remoteWork, user, work.id]);
+
+  const isLiked = remoteWork ? remoteLiked : liked.includes(work.id);
+  const isSaved = remoteWork ? remoteSaved : saved.includes(work.id);
+  const likeCount = remoteWork ? remoteLikes : work.stats.likes + (liked.includes(work.id) ? 1 : 0);
+  const saveCount = remoteWork ? remoteSaves : work.stats.saves + (saved.includes(work.id) ? 1 : 0);
   const canRemix = work.license !== "不可二创";
+
+  const toggleLike = async () => {
+    if (remoteWork) {
+      if (!user || !supabase) {
+        navigate("/login");
+        return;
+      }
+      if (remoteLiked) {
+        const { error } = await supabase.from("likes").delete().eq("work_id", work.id).eq("user_id", user.id);
+        if (error) return toast({ title: "取消喜欢失败", desc: error.message, tone: "ink" });
+        setRemoteLiked(false);
+        setRemoteLikes((count) => Math.max(0, count - 1));
+      } else {
+        const { error } = await supabase.from("likes").insert({ work_id: work.id, user_id: user.id });
+        if (error) return toast({ title: "喜欢失败", desc: error.message, tone: "ink" });
+        setRemoteLiked(true);
+        setRemoteLikes((count) => count + 1);
+        toast({ title: "喜欢已经记下", desc: "这次喜欢会进入数据库。", tone: "game" });
+      }
+      return;
+    }
+    setLiked((prev) => (isLiked ? prev.filter((id) => id !== work.id) : [...prev, work.id]));
+    if (!isLiked) toast({ title: "喜欢已经记下", desc: "推荐会参考这次喜欢。", tone: "game" });
+  };
+
+  const toggleSave = async () => {
+    if (remoteWork) {
+      if (!user || !supabase) {
+        navigate("/login");
+        return;
+      }
+      if (remoteSaved) {
+        const { error } = await supabase.from("saves").delete().eq("work_id", work.id).eq("user_id", user.id);
+        if (error) return toast({ title: "取消收藏失败", desc: error.message, tone: "ink" });
+        setRemoteSaved(false);
+        setRemoteSaves((count) => Math.max(0, count - 1));
+      } else {
+        const { error } = await supabase.from("saves").insert({ work_id: work.id, user_id: user.id });
+        if (error) return toast({ title: "收藏失败", desc: error.message, tone: "ink" });
+        setRemoteSaved(true);
+        setRemoteSaves((count) => count + 1);
+      }
+      toast({ title: remoteSaved ? "已取消收藏" : "已收藏", desc: "收藏状态已保存。", tone: "game" });
+      return;
+    }
+    setSaved((prev) => (isSaved ? prev.filter((id) => id !== work.id) : [...prev, work.id]));
+    toast({ title: isSaved ? "已取消收藏" : "已收藏到「我的」", desc: "刷新后也会保留。" });
+  };
 
   return (
     <>
@@ -113,38 +194,19 @@ export function ActionBar({ work }: { work: Work }) {
             type="button"
             className={cn("action-btn", isLiked && "is-active")}
             aria-pressed={isLiked}
-            onClick={() => {
-              setLiked((prev) =>
-                isLiked ? prev.filter((id) => id !== work.id) : [...prev, work.id],
-              );
-              if (!isLiked) {
-                toast({
-                  title: "喜欢已经记下",
-                  desc: "推荐会参考这次喜欢，但不会只推同类。",
-                  tone: "game",
-                });
-              }
-            }}
+            onClick={() => void toggleLike()}
           >
             <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
-            <span>{formatCount(work.stats.likes + (isLiked ? 1 : 0))}</span>
+            <span>{formatCount(likeCount)}</span>
           </button>
           <button
             type="button"
             className={cn("action-btn", isSaved && "is-active")}
             aria-pressed={isSaved}
-            onClick={() => {
-              setSaved((prev) =>
-                isSaved ? prev.filter((id) => id !== work.id) : [...prev, work.id],
-              );
-              toast({
-                title: isSaved ? "已取消收藏" : "已收藏到「我的」",
-                desc: isSaved ? "它还在，只是不再出现在收藏夹里。" : "刷新后也会保留。",
-              });
-            }}
+            onClick={() => void toggleSave()}
           >
             <Bookmark size={18} fill={isSaved ? "currentColor" : "none"} />
-            <span>{formatCount(work.stats.saves + (isSaved ? 1 : 0))}</span>
+            <span>{formatCount(saveCount)}</span>
           </button>
           <button
             type="button"

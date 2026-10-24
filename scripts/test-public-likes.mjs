@@ -1,0 +1,14 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: "new", args: ["--no-sandbox", "--disable-http2", "--host-resolver-rules=MAP lingzuo-ai.netlify.app 13.215.239.219"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1440, height: 1000 });
+const errs = [];
+p.on("pageerror", (e) => errs.push(e.message));
+await p.goto("https://lingzuo-ai.netlify.app/tutorials/r-mvmhy6nf", { waitUntil: "domcontentloaded", timeout: 60000 });
+await new Promise((r) => setTimeout(r, 5000));
+console.log("actions", await p.$$eval(".action-btn", (n) => n.map((x) => x.textContent?.trim()).slice(0, 2)));
+await p.click(".action-btn");
+await new Promise((r) => setTimeout(r, 1200));
+console.log("url", p.url());
+console.log("errors", errs);
+await b.close();
