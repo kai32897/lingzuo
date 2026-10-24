@@ -11,6 +11,7 @@ const baseUrl = (
   process.env.SITE_URL ||
   "http://127.0.0.1:5173"
 ).replace(/\/$/, "");
+const hideDemoWorks = env.VITE_HIDE_DEMO_WORKS === "true";
 
 if (!fs.existsSync(path.join(dist, "index.html"))) {
   throw new Error("dist/index.html not found; run vite build first");
@@ -116,7 +117,8 @@ function pageHtml(meta) {
 }
 
 const routes = [];
-for (const work of works) routes.push({ kind: "work", item: work, meta: metaFor("work", work) });
+const visibleWorks = hideDemoWorks ? [] : works;
+for (const work of visibleWorks) routes.push({ kind: "work", item: work, meta: metaFor("work", work) });
 for (const tool of tools) routes.push({ kind: "tool", item: tool, meta: metaFor("tool", tool) });
 for (const post of posts) routes.push({ kind: "post", item: post, meta: metaFor("post", post) });
 for (const creator of creators) routes.push({ kind: "creator", item: creator, meta: metaFor("creator", creator) });
@@ -132,7 +134,7 @@ for (const route of routes) {
 const core = ["/", "/discover", "/search", "/games", "/dramas", "/novels", "/tutorials", "/tools", "/recipes", "/challenges", "/create", "/about", "/guidelines", "/ai-policy"];
 const urls = [
   ...core.map((path) => ({ path, priority: path === "/" ? "1.0" : "0.7", changefreq: "weekly" })),
-  ...works.map((work) => ({
+  ...visibleWorks.map((work) => ({
     path: `/${work.type}s/${work.slug}`,
     priority: "0.8",
     changefreq: "monthly",
