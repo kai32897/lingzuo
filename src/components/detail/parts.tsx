@@ -27,6 +27,8 @@ import { creatorMap, workMap } from "@/data/seed";
 import { recipeFor } from "@/data/recipes";
 import { getPublishedForm, loadWorkVersions, trashWork } from "@/lib/userContent";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { RemoteComments } from "@/components/detail/RemoteComments";
+import { supabase } from "@/lib/supabase";
 import type { Comment, Work } from "@/types";
 import { copyText, formatCount, timeAgo } from "@/lib/utils";
 import { LS_KEYS, useLocalStorage } from "@/lib/storage";
@@ -436,7 +438,7 @@ interface UserComment {
   likes: number;
 }
 
-export function CommentThread({
+function LocalCommentThread({
   targetId,
   authorHandle,
   seedComments,
@@ -787,6 +789,13 @@ export function CommentThread({
       />
     </section>
   );
+}
+
+export function CommentThread(props: Parameters<typeof LocalCommentThread>[0]) {
+  const remote = Boolean(
+    supabase && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(props.targetId),
+  );
+  return remote ? <RemoteComments {...props} /> : <LocalCommentThread {...props} />;
 }
 
 export function DetailAside({ work }: { work: Work }) {

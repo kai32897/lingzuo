@@ -2620,3 +2620,29 @@
 .comment__report:hover {
   color: var(--red);
 }
+
+.comment-group {
+  display: block;
+}
+
+.comment-replies {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.comment-login-prompt {
+  margin: 12px 0;
+  padding: 14px;
+  border: 1.5px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.comment-login-prompt a {
+  margin-left: 5px;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+}
